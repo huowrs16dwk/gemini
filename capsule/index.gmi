@@ -1,0 +1,6 @@
+# Hello gemini
+
+
+Home experiments with gemini on the non web.
+
+=> command-line-tutorial.gmi command line tutorials

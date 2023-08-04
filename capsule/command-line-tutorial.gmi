@@ -1,0 +1,366 @@
+# command line tutorials
+
+Terminal jockey zero to hero.  A gentle introduction to one of the most powerful interfaces in the world: the *nix terminal.
+
+
+## getting started
+
+listing files
+
+	ls
+
+making a directory
+
+	mkdir foo
+
+creating a new file
+
+	touch foo/bar
+
+changing into a directory
+
+	cd foo
+
+going "up" a directory
+
+	cd ..
+
+
+## file permissions
+
+Lots of problems on linux systems have to do with file permissions. It's important to understand what file permissions are, how to read them, and how to change them.
+
+listing file permisisons:
+
+	ls -l
+
+example: drwxr-xr-x foo bar
+
+	d for directory
+	rwx user permissions (user foo)
+	r-x group permissions (group bar)
+	r-x other permissions (anybody not foo and not in bar)
+
+	r for read
+	w for write
+	x for execute (for directories that means you can cd into it)
+
+	- means the permission is not present
+
+you can change permisions with chmod:
+
+	chmod u-w foo # remove write permissions from the user
+	chmod g+w foo # add write permissions to the group
+
+each rwx group can also be represented as a number
+
+	- = 0
+	r = 4
+	w = 2
+	x = 1
+
+And you can add these numbers together, for instance 7 for rwx
+
+You can also change permisions using numbers
+
+	chmod 755 foo
+
+
+You can change the user and group (owner) of a file with chown:
+
+	chown baz:qux foo  # change the user to baz
+			   # change the group to qux
+                           # on the file (or directory) foo
+
+## variables
+
+Your shell is effectively a programming environment.  You can set variables and print variables. This can be very useful, let's take a look at some examples:
+
+	export x=foo # set the varible x to foo
+		     # export effectively makes it a global variable
+		     # this means it can be used by other programs
+
+	echo $x	     # print the value of x
+
+	cd $x        # use the x variable and cd into the directory
+
+	printenv	# print all the current variables
+
+You may noticed there are some special variables like $SHELL and $HOME and $PATH.  These control your environment.
+
+## configuring your shell
+
+both bash and zsh offer incredibly powerful user prompts. The "prompt" is the stuff that is printed before you get to type at the begining of the line.
+
+The most basic prompt is a simple $
+
+The default prompt on your system is probably something like this:
+
+[user@host ~]
+
+The ~ is a special character, it represents your home folder. If you were to change directories, you'd see the prompt update
+
+You can change the prompt by changing the `PS1` variable
+
+	export PS1='[\u@\h \w]\n\$ '
+
+	\u is the current user
+	\h is the current host
+	\w is the current directory (full path)
+	\n is a line feed
+	\$ is a $ for regular users and a # for root
+
+## getting help
+
+I don't have all the prompt values memorized, but I can look them up in the manual.  
+
+	man bash
+
+This opens up the user manual for bash, you can search with the `/` key. Try searching for "PROMPTING"
+
+	/prompting
+
+You can step to the next search result hit with the `n` key. To quit, press `q`
+
+
+## editing files
+
+Most systems come with an editor of some kind preinstalled.  nano, vim and emacs are the most common.  I will do a separate tutorial on vim.  Nano works like most text editors you are already familiar with.
+
+	nano bar
+
+You can change your default editor by setting the EDITOR variable
+
+	export EDITOR=vim
+
+## saving things for next time
+
+You probably don't want to have to change your editor or update your prompt variables every time you launch a shell.  Each shell has some special files you can use to run commands automatically when you login to your shell.  For bash, the most common file is ~/.bashrc and for zsh it is ~/.zshrc
+
+Files that start with `.` are "hidden" files.  To see them, you need to pass a flag to the ls command telling it you want to see hidden files.
+
+	cd ~
+	ls -a
+	nano .bashrc
+
+Inside this file, you can add whatever commands you want, and they will run each time you start a new shell.
+
+## aliasing
+
+One of the most common things people like to do is create "aliases" for various commands so they don't have to type long ones, they can instead type a short alias.
+
+	alias ll='ls -l'
+	alias la='ls -a'
+	alias f='find'
+	alias grin='grep -iRn'
+
+To remove an alias, you can use the unalias command:
+
+	unalias grin
+
+## running multiple commands
+
+You can run multiple commands by separating them with `;`
+
+	echo foo; echo bar
+
+## pipes and redirection
+
+The pipe `|` operator is very useful.  Using it, you can string multiple sets of commands together.
+
+
+	cat file.log | sort | uniq
+
+
+In this example, we view the contents of file.log and then sort it, then select only the unique lines from it.
+
+## common commands
+
+Here are some of the most common commands available on all *nix systems.  Take a look at the man pages and poke around.  Think of ways you can string them together with `;` and `|`.
+
+In no particular order:
+
+	man
+	wc
+	nl
+	date
+	cal
+	sort
+	uniq
+	shuf
+	tr
+	grep
+	sed
+	awk
+	perl
+	cut
+	paste
+	diff
+	comm
+	head
+	tail
+	cat
+	tar
+	gzip
+	less
+	more
+	base64
+	file
+	tee
+	seq
+	xargs
+	fmt
+	du
+	find
+	tput
+	printf
+
+
+You can find more by looking in your $PATH variable.  Let's take a look at all the places the shell looks for programs:
+
+
+	echo $PATH | tr ':' '\n'
+
+	/usr/local/sbin
+	/usr/local/bin
+	/usr/bin
+	/usr/bin/site_perl
+	/usr/bin/vendor_perl
+	/usr/bin/core_perl
+
+When you try to access a program, this is where your shell is looking to find it.  If it's not in one of these folders, it won't be able to find it.  In fact, it looks at these in order, so if you wanted to have a different version of a command be the default, you could make sure that your local path in your home directory is searched first.  Let's do that.
+
+
+	export PATH="${HOME}/.bin:${PATH}"
+
+Remember, if you want this to stick around, you'll need to add it to your ~/.bashrc or ~/.zshrc
+
+A couple of things going on here that are interesting.
+
+ - First, we are using double quotes: ". This means that variables inside the quotes will be evaluated, so we can reference special variables like $HOME and $PATH and they will expand properly. If we used single quotes ' then the variables would not be expanded.
+ - Second, the .bin folder is being put at the beginning of the list.  This means that your shell will look there first before looking in the rest of the system.
+ - Third, we are separating the values with a :  This is a special notation for the $PATH variable.  It's a collection of paths separated by :
+
+Cool right? Now we have a local folder in our home directory where we can install more programs and we never have to worry about having extra permissions on the system or cluttering up /usr and /bin directories with personal programs.  These can be programs that we write, or programs we got from the internet.
+
+
+## basic scripting techniques
+
+Let's write a basic script.  We can print the latest news headlines for example.  First, we will need a way to parse html.  Let's install pup to our ~/.bin folder that we setup earlier.
+
+	curl -s -L https://github.com/ericchiang/pup/releases/download/v0.4.0/pup_v0.4.0_linux_amd64.zip | zcat > ~/.bin/pup
+
+This uses curl to fetch the file and output it to standard out.  We then pipe that into zcat standard in, and zcat decompresses the file to standard out. Then we take that and "arrow" it using the > to the ~/.bin/pup file on the file system.
+
+	# write a file creating or overwriting whatever is there
+	echo "hello" > file1
+
+	# write to a file, appending to the end of it
+	echo "world" >> file1
+
+Now that we have the pup command, in order to use it we have to give ourselves permission to execute it.  Remember chmod?
+
+	chmod u+x ~/.bin/pup
+
+Now that we can use the program, let's scrape some news headlines.
+
+	curl -s https://news.ycombinator.com/ | pup 'table table tr:nth-last-of-type(n+2) td.title a json{}'
+
+That grabs headlines and links, but it's not very nice to look at.  Let's see if we can clean up the output.  Since we are working with web data, it's also useful to have jq.  So I've also installed that.
+
+	curl -s https://news.ycombinator.com/ | pup 'table table tr:nth-last-of-type(n+2) td.title a json{}' | jq -r '.[] | {text,href} | select (.text !=null) | "\(.text)\n\(.href)\n\n"'
+
+
+Wow, that's one heck of a command.  Let's see if we can break it up a little bit and figure out what's going on.
+
+	curl # fetch something from the web
+	-s	# silently
+	...	# url to fetch
+	| 	# pipe stdout to stdin
+	pup 	# process html
+	...     # parameters for parsing, selecting out just the section we want from the page
+	|	# pipe stdout to stdin
+	jq	# process json
+	-r	# print the raw value of the string
+	...	# select the text and href fields where text is not null
+
+If you look closely, jq supports it's own pipes.  All of that is one big long string passed to jq to process the json output. You can find more about the pup and jq syntax in their respective documentation.
+
+Let's turn it into a script that we can call any time we want:
+
+	cat headlines.sh
+
+	#!/usr/bin/env bash
+	
+	html=$(curl -s https://news.ycombinator.com/)
+	json=$(echo $html |  pup 'table table tr:nth-last-of-type(n+2) td.title a json{}')
+	echo $json | jq -r '.[] | {text,href} | select (.text !=null) | "\(.text)\n\(.href)\n\n"'
+
+Now we can save that file, chmod +x the file, and then we can run it any time and get headlines at our terminal.
+
+The foo=$(bar) notation runs the bar command and saves the output to foo.  You can then use that $foo from anywhere.
+
+That funny little syntax at the top is important.  The "shebang" #! is read by the shell and it's used to identify what program to use to run your script.  In this case it runs the env command and passes it bash creating an isolated environment for the script. The #! must be the first two characters on the first line of the script for it to work.  Without this, you wouldn't be able to make the script executable and run it.  You would need to call the program yourself like this:
+
+	bash headlines.sh
+
+## indirection and redirection
+
+We already talked about the basics of redirecting output to a file with the > operator, but what if you wanted to read in files, or diff the output from two different commands?
+
+ 	# read the foo.json file and pipe it to jq stdin
+	cat foo.json | jq
+
+	# same thing, read the foo.json file and send it to jq stdin
+	jq < foo.json
+
+	# read in foo.json, grep for title, redirect any errors to /dev/null
+	grep title 2>/dev/null < foo.json
+	
+	# generate two randomized lists of numbers from 1-10 and compare them
+	diff <(seq 10 | shuf) <(seq 10 | shuf)
+
+## jobs
+
+Sometimes you have a long running process and you want to run it in the background.  There is a basic job system included in the shell for just that.  One way of forking a job to the background is using the & operator.
+
+
+	sleep 60 &
+
+The `&` operator forks the process into the background.  You can continue to use your shell and when the command is complete it will notify you it's done at your prompt.
+
+You can see a list of all your jobs using the jobs command
+
+	 jobs
+	[1]+  Running                 sleep 60 &
+
+You can bring a job to the foreground with the 'fg' command.
+
+
+	fg 1
+
+You can pause the current command with ctrl+z
+
+	$ sleep 60
+	^Z
+	[1]+  Stopped                 sleep 60
+
+Once a process is stopped, you can background it with the bg command
+
+	$ bg 1
+	[1]+ sleep 60 &
+
+One way I like to deal with long running programs is to use the terminal bell.
+
+	 alias bell="echo -n $'\a'"
+
+Then I can run jobs and put a bell at the end:
+
+	curl -s really-large-file ; bell 
+
+This works with the job system where you can ctrl+z and then bg the job, when it's complete you'll get a terminal bell.
+
+
+
+
+
