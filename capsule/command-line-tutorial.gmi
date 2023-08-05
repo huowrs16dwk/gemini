@@ -946,7 +946,7 @@ In your profile scripts you can check what operating system you are on and assig
 
 ## sharing dotfiles across machines
 
-I spent years mucking about with custom funcdtions and then I found chezmoi.  It just works, and I can get over it's quirks.  If you really want to roll your own thing, then more power to you, but for me, chezmoi is good enough.
+I spent years mucking about with custom functions and then I found chezmoi.  It just works, and I can get over it's quirks.  If you really want to roll your own thing, then more power to you, but for me, chezmoi is good enough.
 
 => https://www.chezmoi.io/ chezmoi home
 
