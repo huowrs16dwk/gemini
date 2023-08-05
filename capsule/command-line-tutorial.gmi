@@ -162,6 +162,22 @@ Conventional Variables:
 	$EDITOR          # the default editor to use
 
 
+## ls colors
+
+You can get a directory listing with color and decorators:
+
+	ls --color -FG
+
+If you don't like your colors, you can customize them with the LS_COLORS variable
+
+	man dircolors
+	dircolors -b > .zshrc.d/ls-colors.sh
+
+Here is an example of what I use:
+
+	LS_COLORS='rs=0:di=01;33:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.jpg=01;35:*.jpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:';
+
+
 ## configuring your shell
 
 both bash and zsh offer incredibly powerful user prompts. The "prompt" is the stuff that is printed before you get to type at the begining of the line.
@@ -251,16 +267,20 @@ To run the raw command one time without unaliasing it, you can prefix it with ba
 
 If you have a complicated command that is too big for an alias, but too small to warrent it's own script file, you may want to consider defining a function for it.
 
-	function ssh_tunnel () {
-	  target=$1
-	  port=$2
-
-	  ssh -N -L ${port}:localhost:${port} ${target}
+	function lowercase() {
+	  awk "{ print tolower(\$0) }"
 	}
 
-The $1 and $2 variables are the parameters to the function:
+	function uppercase() {
+	  awk "{ print toupper(\$0) }"
+	}
 
-	ssh_tunnel foo 80
+You can use the $@ notation to pass through all the parameters at once:
+
+	function rank() {
+	  cat $@ | sort | uniq -c | sort -nr
+	}
+
 
 ## running multiple commands
 
@@ -696,39 +716,6 @@ With zsh it's also possible to customize the keyboard shortcuts.  Here's what I 
 	zle -N __cd_undo; bindkey '^[[1;2B' __cd_undo
 
 
-# basic networking commands
-
-Now that you're familiar with the shell and have some things configured, let's go over some basic networking commands that are relavent to the linux system.
-
-	# list all interfaces with colored output
-	ip -c address
-
-	# list only ipv4 addresses:
-	# a is short form for address
-	ip -4 a
-
-	# list the current route table
-	ip route
-	
-	# show the dns information for a particular domain
-	dig google.com
-	
-	# trace the route from one computer to another
-	traceroute google.com
-
-	# ping another computer to see if it's available
-	ping -c 1 192.168.1.1
-	
-	# scan the ports of another computer and see what services are available
-	nmap 192.168.1.1
-	
-	# log all network traffic on the host
-	sudo tcpdump
-
-	# terminal ui to watch the network traffic on the host in real time
-	sudo nethogs
-
-
 # super users
 
 You may come across times when you don't have permission or need to "be root" for things but you don't quite know why. This all goes back to the permissions section.  Root can do anything with the hardware of the system, including but not limited to watching all the packets that go in and out of a network interface or reading all your email.
@@ -889,4 +876,138 @@ There are also some packages available for more advanced cases:
 
 	sudo pip install bashplotlib
 	yay -S ttyplot
+
+
+# working with multimedia
+
+Sometimes you have to process images, audio or video.  Many times it's easier to batch convert or resize things than it is to work on them as individual files in something like Gimp.
+
+For images, you'll want to install imagemagick.  That will give you the convert command:
+
+	# parallel resize, crop, and convert to png
+	parallel -i -j $(ls -l *.jpg | wc -l) sh -c "convert '{}' -resize 850 -crop x315 '{}.png'" -- *.jpg
+
+
+For audio, ffmpeg is your friend
+
+	alias towav="ffmpeg -i pipe:0 pipe:1"
+	alias tomp3="ffmpeg -i pipe:0 -acodec libmp3lame pipe:1"
+	alias toogg="ffmpeg -i pipe:0 -acodec libvorbis pipe:1"
+	alias toaac="ffmpeg -i pipe:0 -acodec libfaac pipe:1"
+	alias toac3="ffmpeg -i pipe:0 -acodec ac3 pipe:1"
+
+	cat foo.wav | tomp3 > foo.mp3
+
+And video too:
+
+	ffmpeg -i input.mp4 -q:v 10 -c:v libvpx -c:a libvorbis output.webm
+
+
+# system clipboard integration
+
+If you are using Xorg then you can copy and paste with xclip
+
+	# copy to clipboard
+	uptime | xclip
+
+	# paste from clipboard
+	xclip -o > uptime.txt
+
+If you are using Wayland, there is a wl version:
+
+	wl-copy
+	wl-paste
+
+If you are on MacOS you can use the pb commands for the pasteboard
+
+	pbcopy
+	pbpaste
+
+And on Windows there is clip
+
+	echo "foo" | clip
+	paste > foo.txt
+
+Or the powershell version:
+
+	echo "foo" | Set-Clipboard
+	Paste-Clipboard > foo.txt
+
+In your profile scripts you can check what operating system you are on and assign the correct commands to an alias like c and p.  Then no matter what machine the same c and p commands will work.
+
+# sharing dotfiles across machines
+
+I spent years mucking about with custom funcdtions and then I found chezmoi.  It just works, and I can get over it's quirks.  If you really want to roll your own thing, then more power to you, but for me, chezmoi is good enough.
+
+=> https://www.chezmoi.io/ chezmoi home
+
+
+# ssh and networking
+
+Now that you're familiar with the shell and have some things configured, let's go over some basic networking commands that are relavent to the linux system.
+
+	# list all interfaces with colored output
+	ip -c address
+
+	# list only ipv4 addresses:
+	# a is short form for address
+	ip -4 a
+
+	# list the current route table
+	ip route
+	
+	# show the dns information for a particular domain
+	dig google.com
+	
+	# trace the route from one computer to another
+	traceroute google.com
+
+	# ping another computer to see if it's available
+	ping -c 1 192.168.1.1
+	
+	# scan the ports of another computer and see what services are available
+	nmap 192.168.1.1
+	
+	# log all network traffic on the host
+	sudo tcpdump
+
+	# terminal ui to watch the network traffic on the host in real time
+	sudo nethogs
+
+SSH can be used to login to a secure shell on another machine.
+
+	function ssh_tunnel () {
+	  target=$1
+	  port=$2
+
+	  ssh -N -L ${port}:localhost:${port} ${target}
+	}
+
+The $1 and $2 variables are the parameters to the function:
+
+	ssh_tunnel foo 80
+
+You probably don't want to have to type the same arguments to ssh every time like passing in -i or -L all the time.  You can simplify your life with a config file:
+
+	cat .ssh/config
+	
+	Host razorcrest
+	  Hostname 10.10.10.1
+	  User grogu
+	  IdentityFile ~/.ssh/grogu
+
+	Host mando
+	  Hostname 10.10.10.10
+	  User mando
+	  IdentityFile ~/.ssh/mando
+	  ProxyJump razorcrest
+	  LocalForward 80 localhost:8080
+
+
+Now that we've setup an entry for mando we can just type
+
+	ssh mando
+
+And it will automatically pass the identity file, forward the ports, and even jump through a bastion host to get there. The point here is it can be named anything.  ssh will use your config file for the names, so you can call the files and servers anything you like so long as the hostname field is correct.   man ssh_config for more info.  I put everything in my ssh config, even if it's only temporary.  I can always comment it out if I don't want it there later with #
+
 
