@@ -890,17 +890,26 @@ For images, you'll want to install imagemagick.  That will give you the convert 
 
 For audio, ffmpeg is your friend
 
-	alias towav="ffmpeg -i pipe:0 pipe:1"
-	alias tomp3="ffmpeg -i pipe:0 -acodec libmp3lame pipe:1"
-	alias toogg="ffmpeg -i pipe:0 -acodec libvorbis pipe:1"
-	alias toaac="ffmpeg -i pipe:0 -acodec libfaac pipe:1"
-	alias toac3="ffmpeg -i pipe:0 -acodec ac3 pipe:1"
+	alias towav="ffmpeg -i pipe:0 -f wav pipe:1"
+	alias tomp3="ffmpeg -i pipe:0 -f mp3 pipe:1"
+	alias tomono="ffmpeg -i pipe:0 -f wav -ac 1 pipe:1"
 
 	cat foo.wav | tomp3 > foo.mp3
 
 And video too:
 
 	ffmpeg -i input.mp4 -q:v 10 -c:v libvpx -c:a libvorbis output.webm
+
+Audio playback is possible too, you can use the media player to play sounds when tasks complete
+
+	mpv foo.wav
+
+What about converting speech to text? You can use whisper
+
+	pip install openai-whisper
+
+	# run speech to text on the audio file
+	whisper foo.mp3 | tee transcript.txt
 
 
 # system clipboard integration
@@ -944,7 +953,7 @@ I spent years mucking about with custom funcdtions and then I found chezmoi.  It
 
 # ssh and networking
 
-Now that you're familiar with the shell and have some things configured, let's go over some basic networking commands that are relavent to the linux system.
+Now that you're familiar with the shell and have some things configured, let's go over some basic networking commands that are relavent to the linux system. You may need to install some of these as not all networking tools come as part of all distros.
 
 	# list all interfaces with colored output
 	ip -c address
@@ -970,6 +979,9 @@ Now that you're familiar with the shell and have some things configured, let's g
 	
 	# log all network traffic on the host
 	sudo tcpdump
+
+	# log all http and https traffic on the wifi
+	sudo tcpdump -i wlp4s0 'tcp port 80 or tcp port 443'
 
 	# terminal ui to watch the network traffic on the host in real time
 	sudo nethogs
@@ -1010,4 +1022,41 @@ Now that we've setup an entry for mando we can just type
 
 And it will automatically pass the identity file, forward the ports, and even jump through a bastion host to get there. The point here is it can be named anything.  ssh will use your config file for the names, so you can call the files and servers anything you like so long as the hostname field is correct.   man ssh_config for more info.  I put everything in my ssh config, even if it's only temporary.  I can always comment it out if I don't want it there later with #
 
+
+# system monitoring
+
+The sar command can monitor many things on the system, cpu, memory, disk, network, etc.
+
+	# everything
+	sar -A 1
+
+	# paging statistics
+	sar -B 1
+
+	# io statistics
+	sar -b 1
+
+	# block devices (hard drives)
+	sar -d 1
+
+	# network statistics for all interfaces
+	sar -n ALL 1
+
+	# network stats for a single interface
+	sar -n ALL --iface=wlp4s0 1
+	
+For a terminal ui, top is installed on most systems, but there are prettier alternatives
+
+	# top, available almost everywhere
+	top
+
+	# htop, a prettier top
+	htop
+
+	# bottom, a prettier htop
+	btm
+
+For a web gui there are several options.  I like netdata.
+
+=> https://github.com/netdata/netdata netdata source
 
