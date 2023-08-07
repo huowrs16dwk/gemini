@@ -575,7 +575,7 @@ To switch your shell over to using zsh, you'll need to use the chsh command
 
 	chsh -s /bin/zsh
 
-If you don't do anything, the next time you login zsh will prompt you for some information the next time you login and auto generate some dotfiles for you.  Let's talk a bit more about dotfiles. Your dotfiles are run in a very specific order:
+If you don't do anything, the next time you login zsh will prompt you for some information and auto generate some dotfiles for you.  Let's talk a bit more about dotfiles. Your dotfiles are run in a very specific order:
 
 	set the command search path, environment variables
 	.zshenv
