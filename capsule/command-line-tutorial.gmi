@@ -797,6 +797,24 @@ Or just simply printing a single column:
 	alias col9="awk '{ print \$9 }'"
 
 
+## looping
+
+The terminal is great for bulk operations.  Any command you can type, you can also run in a loop.
+
+	for f in $(ls *.7z)
+	do
+		7z x $f
+	done
+
+find can execute commands for all the matches
+
+	find ~/Downloads/ -name '*.7z' -exec  7z x {} \;
+
+xargs supports parallel operations
+
+	find ~/Downloads/ -name '*.7z' | xargs -P 0 -n 1 7z x
+
+
 ## package managers
 
 It's important to point out that lots of terminal commands are available from language specific package managers.  It's very useful to have python, ruby, node.js and golang all working in a terminal so that you can use commands people have published.
@@ -924,13 +942,13 @@ If you are using Xorg then you can copy and paste with xclip
 
 If you are using Wayland, there is a wl version:
 
-	wl-copy
-	wl-paste
+	echo "foo" | wl-copy
+	wl-paste > foo.txt
 
 If you are on MacOS you can use the pb commands for the pasteboard
 
-	pbcopy
-	pbpaste
+	echo "foo" | pbcopy
+	pbpaste > foo.txt
 
 And on Windows there is clip
 
@@ -986,18 +1004,10 @@ Now that you're familiar with the shell and have some things configured, let's g
 	# terminal ui to watch the network traffic on the host in real time
 	sudo nethogs
 
+
 SSH can be used to login to a secure shell on another machine.
 
-	function ssh_tunnel () {
-	  target=$1
-	  port=$2
-
-	  ssh -N -L ${port}:localhost:${port} ${target}
-	}
-
-The $1 and $2 variables are the parameters to the function:
-
-	ssh_tunnel foo 80
+	ssh -i aws-key.pem -L 5432:localhost:5432 ec2-machine
 
 You probably don't want to have to type the same arguments to ssh every time like passing in -i or -L all the time.  You can simplify your life with a config file:
 
@@ -1015,13 +1025,24 @@ You probably don't want to have to type the same arguments to ssh every time lik
 	  ProxyJump razorcrest
 	  LocalForward 80 localhost:8080
 
-
 Now that we've setup an entry for mando we can just type
 
 	ssh mando
 
-And it will automatically pass the identity file, forward the ports, and even jump through a bastion host to get there. The point here is it can be named anything.  ssh will use your config file for the names, so you can call the files and servers anything you like so long as the hostname field is correct.   man ssh_config for more info.  I put everything in my ssh config, even if it's only temporary.  I can always comment it out if I don't want it there later with #
+And it will automatically pass the identity file, forward the ports, and even jump through a bastion host to get there. The point here is it can be named anything.  ssh will use your config file for the names, so you can call the files and servers anything you like so long as the hostname field is correct.   man ssh_config for more info.  
 
+There are times when I just want to forward a port temporarily, that's when I use this function to setup a tunnel
+
+	function ssh_tunnel () {
+	  target=$1
+	  port=$2
+
+	  ssh -N -L ${port}:localhost:${port} ${target}
+	}
+
+The $1 and $2 variables are the parameters to the function:
+
+	ssh_tunnel foo 80
 
 ## system monitoring
 
