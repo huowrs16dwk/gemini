@@ -532,7 +532,7 @@ You can also fork and disown a process using the &! notation
 
 ## command history and shortcuts
 
-Your command history is saved to ~/.bash_history or ~/.zsh_history.  You can view and serch it whenever you like.
+Your command history is saved to ~/.bash_history or ~/.zsh_history.  You can view and search it whenever you like.
 
 	# view command history
 	history
