@@ -475,6 +475,21 @@ That funny little syntax at the top is important.  The "shebang" #! is read by t
 
 	bash headlines.sh
 
+When writing scripts, it's common to have conditionals like "if this directory is empty" or "if this file exists".
+
+	if [ -s $f ]
+	then
+        	# $f exists and has a size greater than zero
+	fi
+
+The "test" command can also be used
+
+	 test $? -eq 0 && echo "success"
+
+The test man page has more examples
+
+	man test
+
 ## jobs
 
 Sometimes you have a long running process and you want to run it in the background.  There is a basic job system included in the shell for just that.  One way of forking a job to the background is using the & operator.
