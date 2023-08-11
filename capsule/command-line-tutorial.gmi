@@ -1006,6 +1006,9 @@ Now that you're familiar with the shell and have some things configured, let's g
 
 	# ping another computer to see if it's available
 	ping -c 1 192.168.1.1
+
+	# list the open ports on the local computer
+	ss -tunlp
 	
 	# scan the ports of another computer and see what services are available
 	nmap 192.168.1.1
@@ -1058,6 +1061,24 @@ There are times when I just want to forward a port temporarily, that's when I us
 The $1 and $2 variables are the parameters to the function:
 
 	ssh_tunnel foo 80
+
+
+You can copy files to and from remote servers using scp
+
+	# upload a file
+	scp localfile remoteserver:/path/to/remote/file
+
+	# download a file
+	scp remoteserver:/path/to/remote/file localfile
+
+There are times when you want to transfer a file directly between two computers and not have to download it to one place and upload it to another place because that would take too long or be cumbersome. You can easily do that with netcat.
+
+	# on computer a listen on port 3333 and write the incoming data to a file foo.txt
+	nc -l 3333 > readme.md
+
+	# on computer b write the contents of a file to the remote computer port 3333
+	cat readme.md | nc 192.168.1.1 3333
+	
 
 ## system monitoring
 
