@@ -829,6 +829,24 @@ xargs supports parallel operations
 
 	find ~/Downloads/ -name '*.7z' | xargs -P 0 -n 1 7z x
 
+## expansion and globbing
+
+Sometimes you want to loop over a set of things that is numeric, you can use expansion for that
+
+	for month in {01..12}
+	do
+		echo $month
+	done
+
+If you have files that are in nested subfolders, you can use the * or ** wildcards to match.
+
+	ls *.txt	# all txt files in the current folder
+
+	ls */*.txt	# all txt files in all subfolders (1 level deep)
+
+	# zsh only
+	ls **/*.txt	# all txt files in all subfolders (fully recursive)
+
 
 ## package managers
 
